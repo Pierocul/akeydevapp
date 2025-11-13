@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "1041525816453",
+    "firebase_url": "https://devapp-b6b7c-default-rtdb.firebaseio.com",
+    "project_id": "devapp-b6b7c",
+    "storage_bucket": "devapp-b6b7c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1041525816453:android:ee7fc5ab3babec49dffdec",
+        "android_client_info": {
+          "package_name": "com.akey.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADUrkFAHqPNihnm7U25IRxRbakqSdqr4E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1041525816453:android:8aa317faa40c511edffdec",
+        "android_client_info": {
+          "package_name": "com.example.p_pedemonte_septiembre"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADUrkFAHqPNihnm7U25IRxRbakqSdqr4E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
