@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 
 import '../services/firestore_service.dart';
 
@@ -9,110 +10,9 @@ class ProfileScreen extends StatelessWidget {
   final FirestoreService fs;
 
   Future<void> _showAddPropertyDialog(BuildContext context) async {
-    final formKey = GlobalKey<FormState>();
-    final nameCtrl = TextEditingController();
-    final addressCtrl = TextEditingController();
-    final priceCtrl = TextEditingController();
-    final imageCtrl = TextEditingController();
-
     await showDialog<void>(
       context: context,
-      builder: (dialogCtx) {
-        return AlertDialog(
-          title: const Text('Agregar propiedad'),
-          content: SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: nameCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre de la propiedad',
-                      hintText: 'Ej. Condominio Reina Bernstein',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Ingresa el nombre';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: addressCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Dirección',
-                      hintText: 'Ej. Calle 123, Ciudad',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Ingresa la dirección';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: priceCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Precio (opcional)',
-                      hintText: 'Ej. UF 33.200',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: imageCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'URL de foto',
-                      hintText: 'https://...',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogCtx).pop(),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                if (!formKey.currentState!.validate()) {
-                  return;
-                }
-                try {
-                  await fs.addProperty(
-                    name: nameCtrl.text.trim(),
-                    address: addressCtrl.text.trim(),
-                    imageUrl: imageCtrl.text.trim(),
-                    price: priceCtrl.text.trim(),
-                  );
-                  if (context.mounted) {
-                    Navigator.of(dialogCtx).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Propiedad agregada correctamente'),
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error al guardar: $e'),
-                      ),
-                    );
-                  }
-                }
-              },
-              child: const Text('Guardar'),
-            ),
-          ],
-        );
-      },
+      builder: (dialogCtx) => _AddPropertyDialog(fs: fs),
     );
   }
 
@@ -319,6 +219,238 @@ class _ProfileOptionsCard extends StatelessWidget {
               .toList(),
         ),
       ),
+    );
+  }
+}
+
+class _AddPropertyDialog extends StatefulWidget {
+  const _AddPropertyDialog({required this.fs});
+
+  final FirestoreService fs;
+
+  @override
+  State<_AddPropertyDialog> createState() => _AddPropertyDialogState();
+}
+
+class _AddPropertyDialogState extends State<_AddPropertyDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
+  final _addressCtrl = TextEditingController();
+  final _priceCtrl = TextEditingController();
+  final _imageCtrl = TextEditingController();
+
+  bool _isLoadingCoordinates = false;
+  double? _latitude;
+  double? _longitude;
+  String? _coordinateError;
+
+  Future<void> _getCoordinatesFromAddress() async {
+    final address = _addressCtrl.text.trim();
+    if (address.isEmpty) {
+      setState(() {
+        _coordinateError = 'Ingresa una dirección primero';
+        _latitude = null;
+        _longitude = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoadingCoordinates = true;
+      _coordinateError = null;
+    });
+
+    try {
+      final locations = await locationFromAddress(address);
+      if (locations.isNotEmpty) {
+        setState(() {
+          _latitude = locations.first.latitude;
+          _longitude = locations.first.longitude;
+          _coordinateError = null;
+        });
+      } else {
+        setState(() {
+          _coordinateError = 'No se encontró la ubicación';
+          _latitude = null;
+          _longitude = null;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _coordinateError = 'Error al buscar ubicación: ${e.toString()}';
+        _latitude = null;
+        _longitude = null;
+      });
+    } finally {
+      setState(() {
+        _isLoadingCoordinates = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _addressCtrl.dispose();
+    _priceCtrl.dispose();
+    _imageCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Agregar propiedad'),
+      content: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _nameCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre de la propiedad',
+                  hintText: 'Ej. Condominio Reina Bernstein',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Ingresa el nombre';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _addressCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Dirección',
+                  hintText: 'Ej. Av. Providencia 123, Santiago',
+                  suffixIcon: _isLoadingCoordinates
+                      ? const Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: _getCoordinatesFromAddress,
+                          tooltip: 'Buscar ubicación',
+                        ),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Ingresa la dirección';
+                  }
+                  return null;
+                },
+                onFieldSubmitted: (_) => _getCoordinatesFromAddress(),
+              ),
+              if (_coordinateError != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  _coordinateError!,
+                  style: TextStyle(
+                    color: Colors.red.shade700,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+              if (_latitude != null && _longitude != null) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green.shade700, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Ubicación encontrada: ${_latitude!.toStringAsFixed(6)}, ${_longitude!.toStringAsFixed(6)}',
+                          style: TextStyle(
+                            color: Colors.green.shade700,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _priceCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Precio (opcional)',
+                  hintText: 'Ej. UF 33.200',
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _imageCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'URL de foto',
+                  hintText: 'https://...',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(
+          onPressed: () async {
+            if (!_formKey.currentState!.validate()) {
+              return;
+            }
+
+            // Intentar obtener coordenadas si no se han obtenido
+            if (_latitude == null || _longitude == null) {
+              await _getCoordinatesFromAddress();
+            }
+
+            try {
+              await widget.fs.addProperty(
+                name: _nameCtrl.text.trim(),
+                address: _addressCtrl.text.trim(),
+                imageUrl: _imageCtrl.text.trim(),
+                price: _priceCtrl.text.trim(),
+                latitude: _latitude,
+                longitude: _longitude,
+              );
+              if (context.mounted) {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Propiedad agregada correctamente'),
+                  ),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error al guardar: $e'),
+                  ),
+                );
+              }
+            }
+          },
+          child: const Text('Guardar'),
+        ),
+      ],
     );
   }
 }

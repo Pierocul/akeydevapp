@@ -3,8 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/property.dart';
 import '../services/firestore_service.dart';
+import '../utils/slide_up_route.dart';
 import 'contacts_screen.dart';
 import 'profile_screen.dart';
+import 'property_detail_screen.dart';
 
 class PropertyHomeScreen extends StatefulWidget {
   const PropertyHomeScreen({super.key});
@@ -345,7 +347,15 @@ class _PropertyHomeScreenState extends State<PropertyHomeScreen> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          SlideUpRoute(
+                            builder: (_) => PropertyDetailScreen(
+                              property: property,
+                            ),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: pinkColor,
                         foregroundColor: Colors.white,

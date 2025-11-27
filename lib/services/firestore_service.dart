@@ -92,6 +92,13 @@ class FirestoreService {
     required String imageUrl,
     String? price,
     bool isFeatured = false,
+    int bedrooms = 0,
+    int bathrooms = 0,
+    double area = 0.0,
+    String description = '',
+    List<String> features = const [],
+    double? latitude,
+    double? longitude,
   }) async {
     final doc = _propertiesCol.doc();
     await doc.set({
@@ -100,6 +107,13 @@ class FirestoreService {
       'imageUrl': _sanitizeImageUrl(imageUrl),
       'price': price ?? '',
       'isFeatured': isFeatured,
+      'bedrooms': bedrooms,
+      'bathrooms': bathrooms,
+      'area': area,
+      'description': description,
+      'features': features,
+      'latitude': latitude,
+      'longitude': longitude,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
