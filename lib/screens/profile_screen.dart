@@ -119,7 +119,7 @@ class _ProfileAvatar extends StatelessWidget {
           backgroundColor: colorScheme.primary.withOpacity(0.1),
           child: ClipOval(
             child: Image.asset(
-              'img/julian.jpg',
+              'assets/img/julian.jpg',
               width: 100,
               height: 100,
               fit: BoxFit.cover,

@@ -99,12 +99,12 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "img/LogoOriginal.png"
+  image_path: "assets/img/LogoOriginal.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
   # Para Android: usar adaptive icon con fondo del color del tema
   # El logo se recortará para llenar el espacio (crop center)
   adaptive_icon_background: "#F2138E"
-  adaptive_icon_foreground: "img/LogoOriginal.png"
+  adaptive_icon_foreground: "assets/img/LogoOriginal.png"
   # Para iOS: remover alpha y usar fondo del tema
   remove_alpha_ios: true
   ios_background_color: "#F2138E"
@@ -112,6 +112,6 @@ flutter_launcher_icons:
   # Nota: flutter_launcher_icons usa BoxFit.cover por defecto para adaptive icons
   web:
     generate: true
-    image_path: "img/LogoOriginal.png"
+    image_path: "assets/img/LogoOriginal.png"
     background_color: "#F2138E"
     theme_color: "#F2138E"
