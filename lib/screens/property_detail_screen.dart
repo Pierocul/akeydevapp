@@ -16,6 +16,38 @@ class PropertyDetailScreen extends StatefulWidget {
 
 class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   GoogleMapController? _mapController;
+  bool _mapLoading = true;
+  final Set<Marker> _markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeMap();
+  }
+
+  void _initializeMap() {
+    if (widget.property.latitude != null &&
+        widget.property.longitude != null &&
+        _isValidCoordinate(
+            widget.property.latitude!, widget.property.longitude!)) {
+      _markers.add(
+        Marker(
+          markerId: MarkerId(widget.property.id),
+          position: LatLng(
+            widget.property.latitude!,
+            widget.property.longitude!,
+          ),
+          infoWindow: InfoWindow(
+            title: widget.property.name,
+            snippet: widget.property.address,
+          ),
+        ),
+      );
+    }
+    setState(() {
+      _mapLoading = false;
+    });
+  }
 
   @override
   void dispose() {
@@ -306,63 +338,60 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
-                                child: widget.property.latitude != null &&
-                                        widget.property.longitude != null &&
-                                        _isValidCoordinate(
-                                            widget.property.latitude!,
-                                            widget.property.longitude!)
-                                    ? GoogleMap(
-                                        initialCameraPosition: CameraPosition(
-                                          target: LatLng(
-                                            widget.property.latitude!,
-                                            widget.property.longitude!,
-                                          ),
-                                          zoom: 15.0,
-                                        ),
-                                        markers: {
-                                          Marker(
-                                            markerId: MarkerId(widget.property.id),
-                                            position: LatLng(
-                                              widget.property.latitude!,
-                                              widget.property.longitude!,
-                                            ),
-                                            infoWindow: InfoWindow(
-                                              title: widget.property.name,
-                                              snippet: widget.property.address,
-                                            ),
-                                          ),
-                                        },
-                                        mapType: MapType.normal,
-                                        myLocationButtonEnabled: false,
-                                        zoomControlsEnabled: false,
-                                        onMapCreated: (GoogleMapController controller) {
-                                          _mapController = controller;
-                                        },
-                                      )
-                                    : Container(
+                                child: _mapLoading
+                                    ? Container(
                                         color: Colors.grey.shade200,
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                Icons.map,
-                                                size: 48,
-                                                color: Colors.grey.shade400,
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                'Coordenadas no disponibles',
-                                                style: TextStyle(
-                                                  color: Colors.grey.shade600,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                        child: const Center(
+                                          child: CircularProgressIndicator(),
                                         ),
-                                      ),
+                                      )
+                                    : widget.property.latitude != null &&
+                                            widget.property.longitude != null &&
+                                            _isValidCoordinate(
+                                                widget.property.latitude!,
+                                                widget.property.longitude!)
+                                        ? GoogleMap(
+                                            onMapCreated: (GoogleMapController controller) {
+                                              setState(() {
+                                                _mapController = controller;
+                                              });
+                                            },
+                                            initialCameraPosition: CameraPosition(
+                                              target: LatLng(
+                                                widget.property.latitude!,
+                                                widget.property.longitude!,
+                                              ),
+                                              zoom: 15.0,
+                                            ),
+                                            markers: _markers,
+                                            mapType: MapType.normal,
+                                            myLocationButtonEnabled: false,
+                                            zoomControlsEnabled: false,
+                                          )
+                                        : Container(
+                                            color: Colors.grey.shade200,
+                                            child: Center(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                    Icons.map,
+                                                    size: 48,
+                                                    color: Colors.grey.shade400,
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    'Coordenadas no disponibles',
+                                                    style: TextStyle(
+                                                      color: Colors.grey.shade600,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                               ),
                             ),
                           ],
