@@ -27,6 +27,13 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scroll.dispose();
+    super.dispose();
+  }
+
   Future<void> _send() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
