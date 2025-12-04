@@ -396,36 +396,37 @@ class _PropertyHomeScreenState extends State<PropertyHomeScreen> {
                   right: 20,
                   child: Row(
                     children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              SlideUpRoute(
-                                builder: (_) => PropertyDetailScreen(
-                                  property: property,
-                                  fs: fs,
-                                ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            SlideUpRoute(
+                              builder: (_) => PropertyDetailScreen(
+                                property: property,
+                                fs: fs,
                               ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: pinkColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
                             ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: pinkColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
                           ),
-                          child: const Text(
-                            'Detalles',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: const Text(
+                          'Detalles',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const Spacer(),
                       Container(
                         width: 56,
                         height: 56,
