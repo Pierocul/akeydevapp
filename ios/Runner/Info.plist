@@ -45,5 +45,10 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Permisos para image_picker -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Esta app necesita acceso a tu galería de fotos para seleccionar imágenes de propiedades.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Esta app necesita acceso a la cámara para tomar fotos de propiedades.</string>
 </dict>
 </plist>

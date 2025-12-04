@@ -13,7 +13,28 @@
           "package_name": "com.akey.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1041525816453-132rhrrckk72h9mv8gi9l2gvhu10kqui.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.akey.app",
+            "certificate_hash": "cba3082a07fbeb95a24605c3e0a423b271cc1db8"
+          }
+        },
+        {
+          "client_id": "1041525816453-1bocb7lvti8jgq40vesfs159bqtskd4o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.akey.app",
+            "certificate_hash": "3a12551bf949bc497d21b4f201a10c6430becdd8"
+          }
+        },
+        {
+          "client_id": "1041525816453-te5d4qgia7qkt4fn979q100mqnr9s7do.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyADUrkFAHqPNihnm7U25IRxRbakqSdqr4E"
@@ -21,7 +42,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1041525816453-te5d4qgia7qkt4fn979q100mqnr9s7do.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -32,7 +58,12 @@
           "package_name": "com.example.p_pedemonte_septiembre"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1041525816453-te5d4qgia7qkt4fn979q100mqnr9s7do.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyADUrkFAHqPNihnm7U25IRxRbakqSdqr4E"
@@ -40,7 +71,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1041525816453-te5d4qgia7qkt4fn979q100mqnr9s7do.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

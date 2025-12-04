@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -99,7 +100,7 @@ class _PropertyHomeScreenState extends State<PropertyHomeScreen> {
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: darkBlueColor,
+                  color: const Color(0xFF3605EB),
                 ),
               ),
               const SizedBox(height: 8),
@@ -245,7 +246,7 @@ class _PropertyHomeScreenState extends State<PropertyHomeScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -269,13 +270,46 @@ class _PropertyHomeScreenState extends State<PropertyHomeScreen> {
                     child: Image.network(
                       displayImage,
                       fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: Colors.grey.shade200,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                              color: pinkColor,
+                            ),
+                          ),
+                        );
+                      },
                       errorBuilder: (context, error, stackTrace) {
+                        // Log del error para debug
+                        if (kDebugMode) {
+                          print('Error al cargar imagen: $displayImage');
+                          print('Error: $error');
+                        }
                         return Container(
                           color: Colors.grey.shade300,
-                          child: const Icon(
-                            Icons.home,
-                            size: 100,
-                            color: Colors.grey,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.image_not_supported,
+                                size: 60,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Error al cargar imagen',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       },
@@ -337,6 +371,54 @@ class _PropertyHomeScreenState extends State<PropertyHomeScreen> {
                     ],
                   ),
                 ),
+                // Menú de opciones (editar/eliminar)
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: PopupMenuButton<String>(
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.more_vert,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        ProfileScreen.showEditPropertyDialog(context, property, fs);
+                      } else if (value == 'delete') {
+                        ProfileScreen.showDeletePropertyDialog(context, property, fs);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, size: 20),
+                            SizedBox(width: 8),
+                            Text('Editar'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, size: 20, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Eliminar', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             // Botones de acción
@@ -352,6 +434,7 @@ class _PropertyHomeScreenState extends State<PropertyHomeScreen> {
                           SlideUpRoute(
                             builder: (_) => PropertyDetailScreen(
                               property: property,
+                              fs: fs,
                             ),
                           ),
                         );
@@ -409,7 +492,7 @@ class _PropertyHomeScreenState extends State<PropertyHomeScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -432,7 +515,7 @@ class _PropertyHomeScreenState extends State<PropertyHomeScreen> {
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _selectedBottomNav == 0 ? pinkColor.withOpacity(0.1) : Colors.transparent,
+                color: _selectedBottomNav == 0 ? pinkColor.withValues(alpha: 0.1) : Colors.transparent,
                 shape: BoxShape.circle,
               ),
               child: Icon(

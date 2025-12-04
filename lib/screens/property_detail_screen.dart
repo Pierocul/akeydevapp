@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/property.dart';
+import '../services/firestore_service.dart';
+import 'chat_screen.dart';
 
 class PropertyDetailScreen extends StatefulWidget {
   const PropertyDetailScreen({
     super.key,
     required this.property,
+    required this.fs,
   });
 
   final Property property;
+  final FirestoreService fs;
 
   @override
   State<PropertyDetailScreen> createState() => _PropertyDetailScreenState();
@@ -109,7 +113,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                               end: Alignment.bottomCenter,
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withOpacity(0.7),
+                                Colors.black.withValues(alpha: 0.7),
                               ],
                             ),
                           ),
@@ -272,7 +276,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                                     ),
                                   ),
                                   ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () => _contactOwner(context),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: pinkColor,
                                       foregroundColor: Colors.white,
@@ -412,6 +416,40 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
   bool _isValidCoordinate(double lat, double lng) {
     return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+  }
+
+  Future<void> _contactOwner(BuildContext context) async {
+    // Crear un contacto simulado para el dueño de la propiedad
+    // Usamos un ID fijo basado en el ID de la propiedad para que sea consistente
+    final ownerContactId = 'property_owner_${widget.property.id}';
+    final ownerName = 'Dueño - ${widget.property.name}';
+
+    try {
+      // Obtener o crear el contacto
+      final ownerContact = await widget.fs.getOrCreateContact(ownerContactId, ownerName);
+
+      // Navegar al chat
+      if (context.mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ChatScreen(
+              fs: widget.fs,
+              contact: ownerContact,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      // Si hay error, mostrar mensaje
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al abrir el chat: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildInfoIcon(

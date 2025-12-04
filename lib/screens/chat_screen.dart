@@ -18,6 +18,15 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
 
+  @override
+  void initState() {
+    super.initState();
+    // Marcar mensajes como leídos al abrir el chat
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.fs.markMessagesAsRead(widget.contact.id);
+    });
+  }
+
   Future<void> _send() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
