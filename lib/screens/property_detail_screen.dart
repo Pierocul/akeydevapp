@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/property.dart';
 import '../services/firestore_service.dart';
 import 'chat_screen.dart';
+import 'profile_screen.dart';
 
 class PropertyDetailScreen extends StatefulWidget {
   const PropertyDetailScreen({
@@ -63,7 +64,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final pinkColor = colorScheme.primary;
-    final darkBlueColor = colorScheme.tertiary;
+    final darkBlueColor = const Color(0xFF3605EB);
 
     final displayImage = widget.property.imageUrl.isNotEmpty
         ? widget.property.imageUrl
@@ -75,7 +76,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         onPressed: () => _contactOwner(context),
         backgroundColor: pinkColor,
         foregroundColor: Colors.white,
-        icon: const Icon(Icons.chat),
+        
         label: const Text(
           'Contactar',
           style: TextStyle(
@@ -150,13 +151,59 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                 actions: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: CircleAvatar(
-                      backgroundColor: pinkColor,
-                      child: IconButton(
-                        icon: const Icon(Icons.bookmark_border,
-                            color: Colors.white),
-                        onPressed: () {},
+                    child: PopupMenuButton<String>(
+                      icon: CircleAvatar(
+                        backgroundColor: pinkColor,
+                        child: const Icon(
+                          Icons.more_vert,
+                          color: Colors.white,
+                        ),
                       ),
+                      onSelected: (value) async {
+                        if (value == 'edit') {
+                          await ProfileScreen.showEditPropertyDialog(
+                            context,
+                            widget.property,
+                            widget.fs,
+                          );
+                          // Recargar la pantalla si se editó
+                          if (context.mounted) {
+                            setState(() {});
+                          }
+                        } else if (value == 'delete') {
+                          await ProfileScreen.showDeletePropertyDialog(
+                            context,
+                            widget.property,
+                            widget.fs,
+                          );
+                          // Cerrar la pantalla si se eliminó
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit, size: 20),
+                              SizedBox(width: 8),
+                              Text('Editar'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete, size: 20, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text('Eliminar', style: TextStyle(color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
