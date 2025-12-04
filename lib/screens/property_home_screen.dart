@@ -261,58 +261,76 @@ class _PropertyHomeScreenState extends State<PropertyHomeScreen> {
             Stack(
               children: [
                 SizedBox(
-                  height: 260,
+                  height: 480,
                   width: double.infinity,
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(20),
                     ),
-                    child: Image.network(
-                      displayImage,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: Colors.grey.shade200,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                              color: pinkColor,
-                            ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        // Log del error para debug
-                        if (kDebugMode) {
-                          print('Error al cargar imagen: $displayImage');
-                          print('Error: $error');
-                        }
-                        return Container(
-                          color: Colors.grey.shade300,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.image_not_supported,
-                                size: 60,
-                                color: Colors.grey,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Error al cargar imagen',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 12,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.network(
+                          displayImage,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              color: Colors.grey.shade200,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                  color: pinkColor,
                                 ),
                               ),
-                            ],
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            // Log del error para debug
+                            if (kDebugMode) {
+                              print('Error al cargar imagen: $displayImage');
+                              print('Error: $error');
+                            }
+                            return Container(
+                              color: Colors.grey.shade300,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.image_not_supported,
+                                    size: 60,
+                                    color: Colors.grey,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Error al cargar imagen',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        // Gradiente rosado/morado sobre la imagen
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                pinkColor.withValues(alpha: 0.3),
+                                darkBlueColor.withValues(alpha: 0.6),
+                              ],
+                            ),
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -371,110 +389,63 @@ class _PropertyHomeScreenState extends State<PropertyHomeScreen> {
                     ],
                   ),
                 ),
-                // Menú de opciones (editar/eliminar)
+                // Botones de acción sobre la imagen (en la parte inferior)
                 Positioned(
-                  top: 16,
-                  right: 16,
-                  child: PopupMenuButton<String>(
-                    icon: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.more_vert,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        ProfileScreen.showEditPropertyDialog(context, property, fs);
-                      } else if (value == 'delete') {
-                        ProfileScreen.showDeletePropertyDialog(context, property, fs);
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'edit',
-                        child: Row(
-                          children: [
-                            Icon(Icons.edit, size: 20),
-                            SizedBox(width: 8),
-                            Text('Editar'),
-                          ],
+                  bottom: 20,
+                  left: 20,
+                  right: 20,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              SlideUpRoute(
+                                builder: (_) => PropertyDetailScreen(
+                                  property: property,
+                                  fs: fs,
+                                ),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: pinkColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Detalles',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
-                      const PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, size: 20, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Eliminar', style: TextStyle(color: Colors.red)),
-                          ],
+                      const SizedBox(width: 12),
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: pinkColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.bookmark_border,
+                            color: Colors.white,
+                            size: 24,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
               ],
-            ),
-            // Botones de acción
-            Container(
-              padding: const EdgeInsets.all(20),
-              color: Colors.white,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          SlideUpRoute(
-                            builder: (_) => PropertyDetailScreen(
-                              property: property,
-                              fs: fs,
-                            ),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: pinkColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Detalles',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: pinkColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.bookmark_border,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),

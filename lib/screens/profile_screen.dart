@@ -403,8 +403,9 @@ class _AddPropertyDialogState extends State<_AddPropertyDialog> {
   Future<void> _pickImage() async {
     final pickedImage = await _picker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 50, // Opcional: optimización de calidad
-      maxWidth: 150,
+      imageQuality: 90, // Alta calidad para evitar pixelación
+      maxWidth: 1920,
+      maxHeight: 1920,
     );
     if (pickedImage != null) {
       setState(() {
